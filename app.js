@@ -33,8 +33,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Establish MongoDb Connection through Mongoose
-
-// Establish connection with MongoDB
 const uri = process.env.DATABASE_URL;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -109,7 +107,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:3000/auth/facebook/callback"
+    callbackURL: "http://localhost:3000/auth/facebook/secrets"
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
@@ -117,6 +115,25 @@ passport.use(new FacebookStrategy({
     });
   }
 ));
+
+//Render home page
+app.get('/', (req, res) => {
+    res.render('home');
+  });
+
+//Render register page
+app.get('/register', (req, res) => {
+    res.render('register');
+  });
+
+//Render log in page
+app.get('/login', (req, res) => {
+    res.render('login');
+  }); 
+
+
+
+
 
 
 app.listen(process.env.PORT, function() {
