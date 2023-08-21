@@ -81,19 +81,23 @@ const FacebookStrategy = passportFacebook.Strategy;
 // When dealing with manual input of a username (usually email) and password for local authentication, you need to implement serialization 
 // and deserialization of user objects. This is necessary to manage user sessions and authentication state.
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
-  });
-  
-  passport.deserializeUser(function(id, done) {
-    User.findById(id, function (err, user) {
-      done(err, user);
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id)
+    .then(user => {
+      done(null, user);
+    })
+    .catch(err => {
+      done(err, null);
     });
-  });
+});
 
 //After finishing config, use the passport strategy. In this case Google and Facebook.
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo", // Alternative profile URL since google+ is deprecated
     callbackURL: "http://localhost:3000/auth/google/secrets"
   },
@@ -116,24 +120,62 @@ passport.use(new FacebookStrategy({
   }
 ));
 
+
+
+/////////////Handle google authentication
+//handle google authentication on both routes
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile'] }));
+
+
+  app.get('/auth/google/secrets', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/secrets');
+  });
+
+
+/////////////Handle Facebook authentication
+//handle Facebook authentication on both routes
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/secrets',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/secrets');
+  });
+
+
+
+
 //Render home page
 app.get('/', (req, res) => {
-    res.render('home');
-  });
+  res.render('home');
+});
 
 //Render register page
 app.get('/register', (req, res) => {
-    res.render('register');
-  });
+  res.render('register');
+});
 
 //Render log in page
 app.get('/login', (req, res) => {
-    res.render('login');
-  }); 
+  res.render('login');
+}); 
 
-
-
-
+app.get("/logout", function(req, res){
+    req.logout(function(err) {
+      if (err) {
+        console.error("Logout error:", err);
+      }
+      res.redirect("/");
+    });
+  });
+  
 
 
 app.listen(process.env.PORT, function() {
