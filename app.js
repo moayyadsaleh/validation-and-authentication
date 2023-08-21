@@ -6,6 +6,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passportFacebook from "passport-facebook";
+
 import { check, validationResult } from "express-validator";
 import { MongoMissingCredentialsError } from "mongodb";
 
@@ -176,6 +177,15 @@ app.get("/logout", function(req, res){
     });
   });
   
+  app.get("/secrets", function(req, res){
+    User.find({"secret": {$ne: null}})
+      .then(foundUsers => {
+        res.render("secrets", {usersWithSecrets: foundUsers});
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  });
 
 
 app.listen(process.env.PORT, function() {
