@@ -8,9 +8,20 @@ body {
     text-align: center;
 }
 
-.secret-text {
-  text-align: center;
+
+
+li {
+  padding-left: 0px; /* Add some left padding for list items */
   font-size: 2rem;
-  color: #fff;
-  background-color: #000;
+  margin-left: 0; /* Remove default margin */
+  list-style: none; /* Remove bullet points */
+  text-align: left; /* Align text to the left */
+  padding: 10px; /* Add padding for spacing */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* Add a linear gradient with colors */
+  background-image: linear-gradient(to right, #ff9900, #011118);
+  background-color: #283747; /* Cool background color */
+
 }

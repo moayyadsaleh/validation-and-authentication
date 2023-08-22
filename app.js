@@ -59,12 +59,12 @@ db.on('disconnected', () => {
 
 //Create Schema
 const userSchema = new mongoose.Schema({
-    email: String,
-    password: String,
-    googleID: String,     
-    facebookID: String,
-    secret: String
-  });
+  email: String,
+  password: String,
+  googleID: String,
+  facebookID: String,
+  secrets: [String] // Store an array of secrets
+});
 
 //Add plugins to the Schema (passportLocalMongoose, find one and create).
 userSchema.plugin(passportLocalMongoose);
@@ -175,15 +175,23 @@ app.get("/logout", function(req, res){
     });
   });
   
-  app.get("/secrets", function(req, res){
-    User.find({"secret": {$ne: null}})
-      .then(foundUsers => {
-        res.render("secrets", {usersWithSecrets: foundUsers});
-      })
-      .catch(err => {
-        console.log(err);
-      });
+  app.get('/secrets', async (req, res) => {
+    try {
+      const foundUser = await User.findById(req.user.id);
+  
+      if (foundUser) {
+        const secrets = foundUser.secrets;
+        res.render('secrets', { secrets });
+      } else {
+        res.status(404).send('User not found'); // Handle case when user doesn't exist
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('An error occurred'); // Handle general error
+    }
   });
+  
+
 // Allow authenticated user to submit a secret
 app.get("/submit", function(req, res) {
   if (req.isAuthenticated()) {
@@ -195,22 +203,25 @@ app.get("/submit", function(req, res) {
 
 //Once the user is authenticated and their session gets saved, their user details are saved to req.user.
 // console.log(req.user.id);
-app.post("/submit", async function(req, res) {
+app.post('/submit', async (req, res) => {
   const submittedSecret = req.body.secret;
 
   try {
+    // Assuming you have a 'User' model defined
     const foundUser = await User.findById(req.user.id);
 
     if (foundUser) {
-      foundUser.secret = submittedSecret;
+      foundUser.secrets.push(submittedSecret);
       await foundUser.save();
-      res.redirect("/secrets");
+      res.redirect('/secrets');
+    } else {
+      res.status(404).send('User not found'); // Handle case when user doesn't exist
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    res.status(500).send('An error occurred'); // Handle general error
   }
 });
-
 
 // Handle manual registration
 //register route
