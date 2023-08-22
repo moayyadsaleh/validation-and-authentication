@@ -151,8 +151,6 @@ app.get('/auth/facebook/secrets',
   });
 
 
-
-
 //Render home page
 app.get('/', (req, res) => {
   res.render('home');
@@ -186,6 +184,66 @@ app.get("/logout", function(req, res){
         console.log(err);
       });
   });
+// Allow authenticated user to submit a secret
+app.get("/submit", function(req, res) {
+  if (req.isAuthenticated()) {
+    res.render("submit"); // Render the "secret" template
+  } else {
+    res.redirect("/login"); // Redirect to login page if user is not authenticated
+  }
+});
+
+//Once the user is authenticated and their session gets saved, their user details are saved to req.user.
+// console.log(req.user.id);
+app.post("/submit", async function(req, res) {
+  const submittedSecret = req.body.secret;
+
+  try {
+    const foundUser = await User.findById(req.user.id);
+
+    if (foundUser) {
+      foundUser.secret = submittedSecret;
+      await foundUser.save();
+      res.redirect("/secrets");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+
+// Handle manual registration
+//register route
+app.post("/register", (req, res) => {
+  User.register({ username: req.body.username }, req.body.password, function(err, user) {
+    if (err) {
+      console.log(err);
+      res.redirect("/register"); // Redirect back to registration page on error
+    } else {
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/secrets"); // Redirect to secrets page after successful registration
+      });
+    }
+  });
+});
+
+app.post("/login", function(req, res) {
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password
+  });
+  
+  req.login(user, function(err) {
+    if (err) {
+      console.log(err);
+      res.redirect("/login"); // Redirect to login page on error
+    } else {
+      passport.authenticate("local")(req, res, function() {
+        res.redirect("/secrets"); // Redirect to secrets page after successful login
+      });
+    }
+  });
+});
 
 
 app.listen(process.env.PORT, function() {
