@@ -25,3 +25,10 @@ li {
   background-color: #283747; /* Cool background color */
 
 }
+@media (max-width: 768px) {
+  .centered {
+    padding: 10px;
+    width: 100%; /* Add this line to make it take full width */
+    box-sizing: border-box; /* Maintain padding within total width */
+  }
+}
