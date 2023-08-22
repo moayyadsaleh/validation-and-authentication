@@ -1,0 +1,34 @@
+
+body {
+  background-color: #E8ECEF;
+}
+
+.centered {
+    padding-top: 200px;
+    text-align: center;
+}
+
+
+
+li {
+  padding-left: 0px; /* Add some left padding for list items */
+  font-size: 2rem;
+  margin-left: 0; /* Remove default margin */
+  list-style: none; /* Remove bullet points */
+  text-align: left; /* Align text to the left */
+  padding: 10px; /* Add padding for spacing */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* Add a linear gradient with colors */
+  background-image: linear-gradient(to right, #ff9900, #011118);
+  background-color: #283747; /* Cool background color */
+
+}
+@media (max-width: 768px) {
+  .centered {
+    padding: 10px;
+    width: 100%; /* Add this line to make it take full width */
+    box-sizing: border-box; /* Maintain padding within total width */
+  }
+}
